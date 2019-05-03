@@ -112,6 +112,10 @@ func (c *Cron) AddJob(spec string, cmd Job) error {
 	return nil
 }
 
+func (c *Cron) AddJobDelay(freq string, jod interface{}, duration time.Duration) {
+
+}
+
 // Schedule adds a Job to the Cron to be run on the given schedule.
 func (c *Cron) Schedule(schedule Schedule, cmd Job) {
 	entry := &Entry{
