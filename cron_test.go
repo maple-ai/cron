@@ -92,6 +92,36 @@ func TestAddBeforeRunning(t *testing.T) {
 	}
 }
 
+// Add then remove before running
+func TestAddThenRemoveBeforeRunning(t *testing.T) {
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+
+	cron := New()
+	cron.AddFunc("@every 5s", func() { wg.Done() })
+
+	for _, e := range cron.Entries() {
+		cron.Remove(e.ID)
+	}
+
+	cron.Start()
+	defer cron.Stop()
+
+	select {
+	case <-time.After(OneSecond):
+		t.Fatal("no job runs")
+	case <-stop(cron):
+	}
+
+}
+
+//Add the Remove after running
+func TestThenAddAfterRunning(t *testing.T) {
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+
+}
+
 // Start cron, add a job, expect it runs.
 func TestAddWhileRunning(t *testing.T) {
 	wg := &sync.WaitGroup{}
