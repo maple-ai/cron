@@ -72,6 +72,13 @@ func NewParser(options ParseOption) Parser {
 	return Parser{options, optionals}
 }
 
+/*
+func Parse(spec string) (Schedule, error) {
+	//use second for default parser options
+	return NewParser(Second).Parse(spec)
+}
+*/
+
 // Parse returns a new crontab schedule representing the given spec.
 // It returns a descriptive error if the spec is not valid.
 // It accepts crontab specs and features configured by NewParser.
