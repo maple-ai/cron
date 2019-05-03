@@ -18,6 +18,7 @@ type Cron struct {
 	running  bool
 	ErrorLog *log.Logger
 	location *time.Location
+	remove   chan EntryID
 }
 
 // Job is an interface for submitted cron jobs.
@@ -31,6 +32,8 @@ type Schedule interface {
 	// Next is invoked initially, and then each time the job is run.
 	Next(time.Time) time.Time
 }
+
+type EntryID int
 
 // Entry consists of a schedule and the func to execute on that schedule.
 type Entry struct {
@@ -47,6 +50,9 @@ type Entry struct {
 
 	// The Job to run.
 	Job Job
+
+	// Entry ID
+	ID EntryID
 }
 
 // byTime is a wrapper for sorting the entry array by time
@@ -106,6 +112,10 @@ func (c *Cron) AddJob(spec string, cmd Job) error {
 	return nil
 }
 
+func (c *Cron) AddJobDelay(freq string, jod interface{}, duration time.Duration) {
+
+}
+
 // Schedule adds a Job to the Cron to be run on the given schedule.
 func (c *Cron) Schedule(schedule Schedule, cmd Job) {
 	entry := &Entry{
@@ -151,6 +161,14 @@ func (c *Cron) Run() {
 	}
 	c.running = true
 	c.run()
+}
+
+func (c *Cron) Remove(id EntryID) {
+	if c.running {
+		c.remove <- id
+		return
+	}
+	c.removeEntry(id)
 }
 
 func (c *Cron) runWithRecovery(j Job) {
@@ -256,4 +274,16 @@ func (c *Cron) entrySnapshot() []*Entry {
 // now returns current time in c location
 func (c *Cron) now() time.Time {
 	return time.Now().In(c.location)
+}
+
+func (c *Cron) removeEntry(id EntryID) {
+	entries := []*Entry{}
+
+	for _, e := range c.entries {
+		if e.ID != id {
+			entries = append(entries, e)
+		}
+	}
+
+	c.entries = entries
 }
