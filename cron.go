@@ -278,12 +278,10 @@ func (c *Cron) now() time.Time {
 
 func (c *Cron) removeEntry(id EntryID) {
 	entries := []*Entry{}
-
 	for _, e := range c.entries {
 		if e.ID != id {
 			entries = append(entries, e)
 		}
 	}
-
 	c.entries = entries
 }
